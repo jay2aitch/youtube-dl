@@ -63,9 +63,13 @@ class AMCNetworksIE(ThePlatformIE):
             'mbr': 'true',
             'manifest': 'm3u',
         }
-        media_url = self._search_regex(
-            r'window\.platformLinkURL\s*=\s*[\'"]([^\'"]+)',
-            webpage, 'media url')
+        video_pid = self._search_regex(
+            r'[\'"]amcn_field_video_pid[\'"]:[\'"]([^\'"]+)',
+            webpage, 'video_pid')
+        account_id = self._search_regex(
+            r'[\'"]mpx_feed[\'"]:[\'"]http://feed.theplatform.com/f/([^/]+)',
+            webpage, 'account_id')
+        media_url = 'https://link.theplatform.com/s/%s/media/%s?' % (account_id, video_pid)
         theplatform_metadata = self._download_theplatform_metadata(self._search_regex(
             r'link\.theplatform\.com/s/([^?]+)',
             media_url, 'theplatform_path'), display_id)
@@ -74,9 +78,10 @@ class AMCNetworksIE(ThePlatformIE):
         title = theplatform_metadata['title']
         rating = try_get(
             theplatform_metadata, lambda x: x['ratings'][0]['rating'])
-        auth_required = self._search_regex(
-            r'window\.authRequired\s*=\s*(true|false);',
-            webpage, 'auth required')
+        #auth_required = self._search_regex(
+        #    r'window\.authRequired\s*=\s*(true|false);',
+        #    webpage, 'auth required')
+        auth_required = ''
         if auth_required == 'true':
             requestor_id = self._search_regex(
                 r'window\.requestor_id\s*=\s*[\'"]([^\'"]+)',
